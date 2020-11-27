@@ -4,7 +4,21 @@ const imageContainer = document.getElementById('image-container');
 const count = 10;
 const apiKey = 'f8SOZoqQ5RDjP2ht-2tzENmSAeagyW03DZcXsGsJPkE';
 const apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${count}`;
+
+let ready = false;
+let imagesLoaded = 0;
+let totalImages = 0;
 let photosArray = [];
+
+//Check if all images were loaded
+function imageLoaded() {
+    console.log('images loaded', imagesLoaded);
+    imagesLoaded++;
+    if(imagesLoaded === totalImages) {
+        ready = true;
+        console.log('ready = ', ready);
+    }
+}
 
 // Function to set all attributes for a given DOM element
 function setAttributes(element, attributes) {
@@ -17,6 +31,9 @@ function setAttributes(element, attributes) {
 
 // Create Elements for Links and Photos, Add to DOM
 function displayPhotos() {
+    totalImages = photosArray.length;
+    imagesLoaded = 0;
+    console.log('total images', totalImages);
     // Loop through returned photosArray
     photosArray.forEach(photo => {
         // Create <a> to link to Unsplash
@@ -32,6 +49,8 @@ function displayPhotos() {
             alt: photo.alt_description,
             title: photo.alt_description
         });
+        // Event listener for image to show when is finished loading
+        imageTag.addEventListener('load', imageLoaded);
         // Put <img> inside <a>, then put both inside the imageContainer
         anchorTag.appendChild(imageTag);
         imageContainer.appendChild(anchorTag);
@@ -52,20 +71,14 @@ async function getPhotos() {
 
 // Check to see if scrolling near bottom of page occurs and then load more photos
 window.addEventListener('scroll', () => {
-    // console.log('innerHeight',window.innerHeight); //total height of browser window (always the same)
-    // console.log('scrollY',window.scrollY); //distance from top of window user has scrolled
-    // console.log('offsetHeight',document.body.offsetHeight); //height of everything in the body, including what is not within view (here: all images; value can change, e.g. when more pictures are loaded)
-
     // Load when the scroll is 1000px from the bottom of the content
     if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
-        console.log('innerHeight',window.innerHeight); //total height of browser window (always the same)
-        console.log('scrollY',window.scrollY); //distance from top of window user has scrolled
-        console.log('offsetHeight',document.body.offsetHeight); //height of everything in the body, including what is not within view (here: all images; value can change, e.g. when more pictures are loaded)
-
-        console.log('innerHeight + scrollY',window.innerHeight+window.scrollY); //equal to bottom of page of current scroll (scrollY refers to the top)
-        console.log('offsetHeight - 1000',document.body.offsetHeight - 1000); //1000px from the bottom of all the content
-
-        console.log('load more');
+        // Only load more images once the prior image download has finished
+        if(ready) {
+            console.log('load more');
+            ready = false;
+            getPhotos();
+        }
     }
 })
 
