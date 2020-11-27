@@ -5,18 +5,17 @@ const count = 10;
 const apiKey = 'f8SOZoqQ5RDjP2ht-2tzENmSAeagyW03DZcXsGsJPkE';
 const apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${count}`;
 
-let ready = false;
-let imagesLoaded = 0;
-let totalImages = 0;
-let photosArray = [];
+let ready = false;      //check if all images from the photosArray were loaded
+let imagesLoaded = 0;   //number of images that were loaded from the current photosArray
+let totalImages = 0;    //length of the photosArray
+let photosArray = [];   //contains all photos objects within an array returned from the Unsplash API
 
 //Check if all images were loaded
 function imageLoaded() {
-    console.log('images loaded', imagesLoaded);
     imagesLoaded++;
     if(imagesLoaded === totalImages) {
         ready = true;
-        console.log('ready = ', ready);
+        loader.hidden = true; //loader will only be shown at the very first API fetch request
     }
 }
 
@@ -33,7 +32,6 @@ function setAttributes(element, attributes) {
 function displayPhotos() {
     totalImages = photosArray.length;
     imagesLoaded = 0;
-    console.log('total images', totalImages);
     // Loop through returned photosArray
     photosArray.forEach(photo => {
         // Create <a> to link to Unsplash
@@ -75,7 +73,6 @@ window.addEventListener('scroll', () => {
     if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
         // Only load more images once the prior image download has finished
         if(ready) {
-            console.log('load more');
             ready = false;
             getPhotos();
         }
